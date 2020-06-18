@@ -1,6 +1,16 @@
-﻿Import-Module -Name VMware.VimAutomation.Core 
+﻿#Requires -Modules VMware.VimAutomation.Core 
 
-function CollectVMWVM-DiskInfo {
+[CmdletBinding(DefaultParameterSetName='vCenter')]
+param (
+    [Parameter(Mandatory=$true, ParameterSetName='vCenter')]
+    [string[]]$vCenter, 
+    [string]$ExportPath = '.'
+)
+
+Import-Module VMware.VimAutomation.Core
+
+#Collect VM Disk Info
+function Get-VMDiskInfo {
     $VMHardDrives = Get-HardDisk -VM $VM
     if ($VMHardDrives.count -eq 0) {$DiskControllerInfo = 'No Disk Configured'; $DiskInfo = 'No Disk Configured'}
     for ($i = 1; $i -le $VMHardDrives.Count ; $i++) {
@@ -16,7 +26,7 @@ function CollectVMWVM-DiskInfo {
     }
 }
 
-function CollectVMWVM-NICInfo {
+function Get-VMNICInfo {
     $VMNetworkAdapters = Get-NetworkAdapter -VM $VM
     if ($VMNetworkAdapters.Count -eq 0) {}
 
@@ -39,18 +49,19 @@ function CollectVMWVM-NICInfo {
 
 }
 
-Connect-VIServer -server srv-vcenter.minedu.government.bg
+Connect-VIServer -server $vCenter -Force
+# Connect-VIServer -server SRV-VCENTER.minedu.government.bg -Force
 
 
-# $VMs = Get-VM -name srv-ex01
-$VMs = Get-VM 
+# $VMs = Get-VM -name adminws, oa
+$VMs = VMware.VimAutomation.Core\Get-VM 
 
 
 $VMWresult = foreach ($VM in $VMs) {
     write-host Processing $VM.Name -BackgroundColor DarkGreen
-    $VMDiskInfo = CollectVMWVM-DiskInfo
-    $NICInfo = CollectVMWVM-NICInfo
-    $Cluster = Get-Cluster -VM $VM
+    $VMDiskInfo = Get-VMDiskInfo
+    $NICInfo = Get-VMNICInfo
+    $Cluster = VMware.VimAutomation.Core\Get-Cluster -VM $VM
     [PSCustomObject]@{
         VMName = $VM.Name
         Cluster = "$($Cluster.ParentFolder)\$($cluster.Name)"
@@ -70,12 +81,13 @@ $VMWresult = foreach ($VM in $VMs) {
         NICVLAN = $NICInfo.NICVLAN
         NICType = $NICInfo.NICType
         NICIPAddresses = $NICInfo.NICIPAddresses
-        VMNotes = $VM.Notes
+        VMNotes = $VM.Notes.Trim()
 
 
 
     }
 }
-
-$VMWresult | Out-GridView
-$VMWresult | Export-Csv -Path C:\TEMP\VM_Audit_VMWare.csv -NoTypeInformation
+$timeStamp = Get-Date -Format yyyy-MM-dd
+# $VMWresult | Out-GridView
+$VMWresult | Export-Csv -Path "$ExportPath\VM_Audit_VMWare_$timeStamp.csv" -NoTypeInformation -Encoding utf8
+# $VMWresult | Export-Csv -Path "c:\temp\VM_Audit_VMWare_$timeStamp.csv" -NoTypeInformation -Encoding utf8

@@ -3,18 +3,19 @@ param (
     [Parameter(Mandatory=$true, ParameterSetName='Cluster')]
     [string[]]$Cluster, 
     [Parameter(Mandatory=$true, ParameterSetName='Server')]
-    [string[]]$Server
+    [string[]]$Server,
+    [string]$ExportPath = '.'
 )
 
-If ($Cluster) {$Computer = $Cluster | foreach {(Get-ClusterNode -Cluster $_).Name}}
+If ($Cluster) {$Computer = $Cluster | ForEach-Object -Process {(Get-ClusterNode -Cluster $_).Name}}
 elseif ($Server) {$Computer = $Server } 
 
 $HVresult = Invoke-Command -ComputerName $Computer -ScriptBlock { 
 
 
-    #region Functions region
+#region Functions region
 
-Function CollectVM-DiskInfo {
+Function Get-VMDiskInfo {
     # Check if no disk is configured. 
     if ($VM.HardDrives.Count -eq 0) {$DiskControllerInfo = 'No Disk Configured'; $DiskInfo = 'No Disk Configured'}
 
@@ -51,7 +52,7 @@ Function CollectVM-DiskInfo {
 
     }
 
-function CollectVM-NICInfo {
+function Get-VMNICInfo {
     if ($VM.NetworkAdapters.Count -eq 0) {$NICMACAddress = "No NIC Configured"; $NICSwitch = "No NIC Configured"; $NICVLAN = "No NIC Configured"; $NICType = 'No NIC Configured' ; $NICIPAddresses = "No NIC Configured"}
     for ($i=1; $i -le $vm.NetworkAdapters.count; $i++){
         $CurrentNIC = $vm.NetworkAdapters[$i-1]
@@ -88,8 +89,8 @@ function CollectVM-NICInfo {
 
         Write-Host Processing: $VM.Name on Server: $VM.ComputerName -BackgroundColor DarkGreen
 
-        $VMDiskInfo = CollectVM-DiskInfo
-        $NICInfo = CollectVM-NICInfo
+        $VMDiskInfo = Get-VMDiskInfo
+        $NICInfo = Get-VMNICInfo
         $VMMemory = Get-VMMemory -VM $VM
 
         [PSCustomObject]@{
@@ -118,10 +119,16 @@ function CollectVM-NICInfo {
 }
 
 # Stop-Process -Name Excel -ErrorAction SilentlyContinue
+$timeStamp = Get-Date -Format yyyy-MM-dd
 
-$HVresult | Export-Csv -Path C:\TEMP\VM_Audit_HyperV.csv -NoTypeInformation
-$HVresult | Out-GridView
-
+$HVresult | Export-Csv -Path "$ExportPath\VM_Audit_HyperV_$timeStamp.csv" -NoTypeInformation -Encoding utf8
+# $HVresult | Out-GridView
+<#
+    . .\VM_Audit_HyperV.ps1 -Cluster HV-CLS1, HV-CLS2, HV-CLS3, HV-CLS04 -ExportPath C:\TEMP
+    Import-Csv -Path C:\TEMP\VM_Audit_HyperV_2020-06-18.csv, C:\TEMP\VM_Audit_VMWare_2020-06-18.csv | Select-Object -ExcludeProperty RunspaceId,PSShowComputerName |Export-Csv -Path C:\TEMP\VM_Audit_All_2020-06-18.csv -Encoding utf8 -NoTypeInformation
+    Import-Csv -Path C:\TEMP\VM_Audit_HyperV_2020-06-18.csv, C:\TEMP\VM_Audit_VMWare_2020-06-18.csv | Select-Object -ExcludeProperty RunspaceId,PSShowComputerName |Export-Csv -Path C:\TEMP\VM_Audit_All_2020-06-18_unicode.csv -Encoding Unicode -NoTypeInformation
+    PSComputerName	
+#>
 #invoke-item -Path C:\TEMP\multiline.csv
 <#
 notepad C:\TEMP\multiline.csv
