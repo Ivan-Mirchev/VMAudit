@@ -62,6 +62,7 @@ $VMWresult = foreach ($VM in $VMs) {
     $VMDiskInfo = Get-VMDiskInfo
     $NICInfo = Get-VMNICInfo
     $Cluster = VMware.VimAutomation.Core\Get-Cluster -VM $VM
+    Write-Host "VM: $VM - CoresPerSocket: $($VM.CoresPerSocket)`nNumberCPU: $($VM.NumCpu)"
     [PSCustomObject]@{
         VMName = $VM.Name
         Cluster = "$($Cluster.ParentFolder)\$($cluster.Name)"
@@ -91,3 +92,10 @@ $timeStamp = Get-Date -Format yyyy-MM-dd
 # $VMWresult | Out-GridView
 $VMWresult | Export-Csv -Path "$ExportPath\VM_Audit_VMWare_$timeStamp.csv" -NoTypeInformation -Encoding utf8
 # $VMWresult | Export-Csv -Path "c:\temp\VM_Audit_VMWare_$timeStamp.csv" -NoTypeInformation -Encoding utf8
+
+<#
+    SRV-VCENTER.minedu.government.bg
+    . .\VM_Audit_VMWare.ps1 -vCenter SRV-VCENTER.minedu.government.bg -
+
+    . .\VM_Audit_VMWare.ps1 -vCenter SRV-VCENTER.minedu.government.bg -ExportPath C:\TEMP\Audit
+#>

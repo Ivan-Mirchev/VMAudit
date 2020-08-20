@@ -80,12 +80,12 @@ function Get-ADPingOnly {
     $ADComputerPingOnly | Export-Csv -Path C:\TEMP\Audit\ADComputerPingOnly_$timeStamp.csv -NoTypeInformation 
 }
 
-Get-ADPingOnly
+# Get-ADPingOnly
 Get-ADPingWINRM
 
 # List of differences | <= - Missing in AD | => - Missing in VM
-$VMComputers = Import-Csv -Path C:\TEMP\Audit\VM_Audit_All_2020-06-18.csv
-$ADComputers = Import-Csv -Path C:\TEMP\Audit\ADComputerPingWINRM_2020-06-19.csv
+$VMComputers = Import-Csv -Path C:\TEMP\Audit\VM_Audit_All_$timeStamp.csv
+$ADComputers = Import-Csv -Path C:\TEMP\Audit\ADComputerPingWINRM_$timeStamp.csv
 
 Compare-Object -ReferenceObject $VMComputers.VMName -DifferenceObject $ADComputers.Name | Export-Csv -Path C:\TEMP\Audit\Difference.csv -NoTypeInformation 
 

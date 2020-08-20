@@ -124,15 +124,19 @@ $timeStamp = Get-Date -Format yyyy-MM-dd
 $HVresult | Export-Csv -Path "$ExportPath\VM_Audit_HyperV_$timeStamp.csv" -NoTypeInformation -Encoding utf8
 # $HVresult | Out-GridView
 <#
-    . .\VM_Audit_HyperV.ps1 -Cluster HV-CLS1, HV-CLS2, HV-CLS3, HV-CLS04 -ExportPath C:\TEMP
+    . .\VM_Audit_HyperV.ps1 -Cluster HV-CLS1, HV-CLS2, HV-CLS3, HV-CLS04 -ExportPath C:\TEMP\Audit
     Import-Csv -Path C:\TEMP\VM_Audit_HyperV_2020-06-18.csv, C:\TEMP\VM_Audit_VMWare_2020-06-18.csv | Select-Object -ExcludeProperty RunspaceId,PSShowComputerName |Export-Csv -Path C:\TEMP\VM_Audit_All_2020-06-18.csv -Encoding utf8 -NoTypeInformation
     Import-Csv -Path C:\TEMP\VM_Audit_HyperV_2020-06-18.csv, C:\TEMP\VM_Audit_VMWare_2020-06-18.csv | Select-Object -ExcludeProperty RunspaceId,PSShowComputerName |Export-Csv -Path C:\TEMP\VM_Audit_All_2020-06-18_unicode.csv -Encoding Unicode -NoTypeInformation
-    PSComputerName	
+    PSComputerName
+    
+    #last working
+    Import-Csv -Path C:\TEMP\Audit\VM_Audit_HyperV_$timestamp.csv, C:\TEMP\Audit\VM_Audit_VMWare_$timeStamp.csv | Select-Object -ExcludeProperty RunspaceId,PSShowComputerName |Export-Csv -Path C:\TEMP\Audit\VM_Audit_All_$timeStamp.csv -Encoding utf8 -NoTypeInformation
 #>
 #invoke-item -Path C:\TEMP\multiline.csv
 <#
 notepad C:\TEMP\multiline.csv
     invoke-item -Path C:\TEMP\multiline.csv
 #>
+
 
 
