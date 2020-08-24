@@ -54,7 +54,7 @@ Connect-VIServer -server $vCenter -Force
 
 
 # $VMs = Get-VM -name adminws, oa
-$VMs = VMware.VimAutomation.Core\Get-VM 
+$VMs = VMware.VimAutomation.Core\Get-VM
 
 
 $VMWresult = foreach ($VM in $VMs) {
@@ -82,7 +82,7 @@ $VMWresult = foreach ($VM in $VMs) {
         NICVLAN = $NICInfo.NICVLAN
         NICType = $NICInfo.NICType
         NICIPAddresses = $NICInfo.NICIPAddresses
-        VMNotes = $VM.Notes.Trim()
+        VMNotes = if ($VM.Notes -eq $null) {$null} else {$VM.Notes.Trim()}
 
 
 
@@ -95,7 +95,7 @@ $VMWresult | Export-Csv -Path "$ExportPath\VM_Audit_VMWare_$timeStamp.csv" -NoTy
 
 <#
     SRV-VCENTER.minedu.government.bg
-    . .\VM_Audit_VMWare.ps1 -vCenter SRV-VCENTER.minedu.government.bg -
+    . .\VM_Audit_VMWare.ps1 -vCenter SRV-VCENTER.minedu.government.bg 
 
     . .\VM_Audit_VMWare.ps1 -vCenter SRV-VCENTER.minedu.government.bg -ExportPath C:\TEMP\Audit
 #>

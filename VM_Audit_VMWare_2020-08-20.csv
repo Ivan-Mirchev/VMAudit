@@ -1,0 +1,3 @@
+﻿"VMName","Cluster","IsClustered","State","CPU","MemoryType","MemoryGB","VMGeneration","VMVersion","DiskCount","DiskController","DiskInfo","NICCount","NICMACAddress","NICSwitch","NICVLAN","NICType","NICIPAddresses","VMNotes"
+"SRV-WIFINPS","MON\VMw-CLS2","True","PoweredOn","CoresPerSocket: 2
+NumberCPU: 2","Static","8","","vmx-10","1","Disk1 : SCSI controller 0 (0:0)","Disk1 : Flat Thin - 120.00 GB","1","NIC1 : 00:50:56:8d:61:c2","VM_Switch","NIC1 : Servers_VLAN163","NIC1 : Vmxnet3","NIC1 : 172.16.3.75",
